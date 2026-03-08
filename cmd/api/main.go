@@ -13,6 +13,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type Message struct {
+	Uuid    string `json:"uuid"`
+	Content string `json:"content"`
+}
+
 func main() {
 	err := godotenv.Load()
 
@@ -42,6 +47,30 @@ func main() {
 		return ctx.Status(http.StatusOK).JSON(fiber.Map{
 			"status": "healthy",
 		})
+	})
+
+	app.Get("/example/messages", func(ctx fiber.Ctx) error {
+		rows, err := postgres.Query(ctx.Context(), "SELECT uuid, message FROM example ORDER BY id DESC")
+
+		if err != nil {
+			return ctx.SendStatus(http.StatusInternalServerError)
+		}
+
+		defer rows.Close()
+
+		messages := []Message{}
+
+		for rows.Next() {
+			var message Message
+			err := rows.Scan(&message.Uuid, &message.Content)
+
+			if err != nil {
+				return ctx.SendStatus(http.StatusInternalServerError)
+			}
+
+			messages = append(messages, message)
+		}
+		return ctx.Status(http.StatusOK).JSON(messages)
 	})
 
 	app.Get("/", func(ctx fiber.Ctx) error {
