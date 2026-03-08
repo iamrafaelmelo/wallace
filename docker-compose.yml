@@ -1,7 +1,7 @@
 services:
   database:
     container_name: wallace-database
-    image: postgres:17.9-alpine3.23
+    image: postgres:18-alpine
     restart: always
     environment:
       POSTGRES_DB: app
@@ -12,7 +12,7 @@ services:
 
   adminer:
     container_name: wallace-database-manager
-    image: adminer
+    image: adminer:5.4.2-standalone
     restart: always
     ports:
       - 8080:8080
