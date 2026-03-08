@@ -1,0 +1,33 @@
+services:
+  database:
+    container_name: wallace-database
+    image: postgres:17.9-alpine3.23
+    restart: always
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - 5432:5432
+
+  adminer:
+    container_name: wallace-database-manager
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+
+  app:
+    container_name: wallace-app
+    build:
+      context: .
+      dockerfile: ./build/local/Dockerfile
+    working_dir: /opt/www/app
+    volumes:
+      - ./:/opt/www/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
